@@ -5,7 +5,9 @@ import { Participant } from "../models/participant";
 import { Category } from "../models/category";
 import { isParticipant, isTrainingEvent } from "../utils/typeGuards";
 import { RegistrationManager } from "./registrationManager";
+import { LogClass, LogMethod } from "../decorators/log";
 
+@LogClass("EventManager")
 export class EventManager {
   private events: Map<number, TrainingEvent> = new Map();
   private participants: Map<number, Participant> = new Map();
@@ -14,6 +16,7 @@ export class EventManager {
   private registrations: Map<number, RegistrationManager<Participant>> = new Map();
 
   // --- CRUD: Create ---
+  @LogMethod("addEvent")
   addEvent(event: TrainingEvent): void {
     this.events.set(event.id, event);
     if (!this.registrations.has(event.id)) {
@@ -133,5 +136,17 @@ export class EventManager {
     return Array.from(this.events.values()).filter((ev) =>
       ev.participants.some((p) => p.id === participantId)
     );
+  }
+
+// Async/await
+async addEventAsync(event: TrainingEvent): Promise<void> {
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      this.addEvent(event);
+      console.log("Async event added:", event.name);
+    } catch (err) {
+      console.error("Async error:", err);
+      throw err;
+    }
   }
 }
